@@ -1,0 +1,14 @@
+balenaEtcher - Flash OS images to SD cards & USB drives ---> https://etcher.balena.io/
+
+petalinux-v2023.2-10121855-installer.run ---> https://1drv.ms/u/s!AugbD-Nk6q_j5UIdkaIqEwvBnlKQ?e=TdpHrO
+
+downloads_2023.tgz ---> https://1drv.ms/u/s!AugbD-Nk6q_j5UkFmxZ6VyPlkFLt?e=92hqGn
+
+sstate-cache_2023_zyboz710.tgz ---> https://1drv.ms/u/s!AugbD-Nk6q_j5UMMdV9nX4i-73Ht?e=gjwiR9
+
+meta-xilinx-tools/docs/README.dfx.dtg.zynq.full.md at rel-v2023.2 · Xilinx/meta-
+xilinx-tools · GitHub ---> https://github.com/Xilinx/meta-xilinx-tools/blob/rel-v2023.2/docs/README.dfx.dtg.zynq.full.md
+
+GitHub - balena-io/etcher: Flash OS images to SD cards & USB drives, safely and easily. ---> https://github.com/balena-io/etcher#debian-and-ubuntu-based-package-repository-gnulinux-x86x64
+
+dt-schema/dtschema/schemas/graph.yaml at main · devicetree-org/dt-schema · GitHub ---> https://github.com/devicetree-org/dt-schema/blob/main/dtschema/schemas/graph.yaml

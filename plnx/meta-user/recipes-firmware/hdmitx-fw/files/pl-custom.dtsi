@@ -1,0 +1,50 @@
+#include <dt-bindings/gpio/gpio.h>
+
+&amba {
+	digilent_hdmi {
+		compatible = "digilent,hdmi";
+
+		clocks = <&axi_dynclk_0>;
+		clock-names = "clk";
+
+		digilent,edid-i2c = <&axi_iic_0>;
+		digilent,fmax = <150000>;
+
+		port@0 {
+			reg = <0>;
+			hdmi_ep: enddpoint {
+				remote-endpoint = <&pl_disp_ep>;
+			};
+		};
+	};
+
+	xlnx_pl_disp {
+		compatible = "xlnx,pl-disp";
+
+		dmas = <&v_frmbuf_rd_0 0>;
+		dma-names = "dma0";
+		xlnx,vformat = "BG24";
+		xlnx,bridge = <&v_tc_0>;
+
+		port@0 {
+			reg = <0>;
+			pl_disp_ep: endpoint {
+				remote-endpoint = <&hdmi_ep>;
+			};
+		};
+	};
+};
+
+&axi_dynclk_0 {
+	compatible = "dglnt,axi-dynclk";
+	#clock-cells = <0>;
+};
+
+&v_frmbuf_rd_0 {
+	reset-gpios = <&gpio0 54 GPIO_ACTIVE_LOW>;
+};
+
+&v_tc_0 {
+	compatible = "xlnx,bridge-v-tc-6.1";
+	xlnx,pixels-per-clock = <1>;
+};

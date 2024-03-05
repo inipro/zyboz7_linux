@@ -1,0 +1,684 @@
+* chapter 1- section 3
+
+<step 3-1>
+~$ sudo dpkg-reconfigure dash
+
+<step 3-3>
+~$ sudo apt install iproute2 gawk python3 build-essential gcc git make net-tools libncurses5-dev tftpd zlib1g-dev libssl-dev flex bison libselinux1 gnupg wget git-core diffstat chrpath socat xterm autoconf libtool tar unzip texinfo zlib1g-dev gcc-multilib automake zlib1g:i386 screen pax gzip cpio python3-pip python3-pexpect xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev pylint lz4 libtinfo5
+
+<step 3-4>
+~$ sudo apt update
+~$ sudo apt upgrade
+
+<step 3-5>
+~$ sudo apt install minicom
+~$ echo "pu rtscts No" > ~/.minirc.dfl
+~$ sudo usermod -a -G dialout $USER
+
+<step 3-6>
+~$ git config --global user.name "Your Name"
+~$ git config --global user.email "Your Email"
+
+* chapter 1 - section 4
+
+<step 2-1>
+~$ cd ~/Downloads
+~$ chmod 755 FPGAs_AdaptiveSoCs_Unified_2023.2_1013_2256_Lin64.bin
+
+<step 2-2>
+~$ sudo ./FPGAs_AdaptiveSoCs_Unified_2023.2_1013_2256_Lin64.bin
+
+<step 2-12>
+~$ cd /tools/Xilinx/Vivado/2023.2/data/xicom/cable_drivers/lin64/install_script/install_drivers/
+~$ sudo ./install_drivers
+
+<step 2-13>
+~$ source /tools/Xilinx/Vivado/2023.2/settings64.sh
+~$ vivado
+
+<step 2-14>
+~$ source /tools/Xilinx/Vitis/2023.2/settings64.sh
+~$ vitis
+
+<step 2-16>
+~$ cd ~/Downloads
+~$ git clone https://github.com/Digilent/vivado-boards.git
+~$ mkdir ~/board_files
+~$ cp -r vivado-boards/new/zybo-z7-20 ~/board_files
+~$ cd ~/.Xilinx/Vivado/2023.2/
+~$ echo "set_param board.repoPaths [list $::env(HOME)/board_files]" > Vivado_init.tcl
+
+* chapter 1 - section 5
+
+<step 2-1>
+~$ chmod 755 ./Downloads/petalinux-v2023.2-10121855-installer.run
+
+<step 2-2>
+~$ sudo mkdir -p /tools/Xilinx/PetaLinux/2023.2
+~$ sudo chown -R $USER:$USER /tools/Xilinx/PetaLinux
+
+<step 2-3>
+~$ ./Downloads/petalinux-v2023.2-10121855-installer.run --dir /tools/Xilinx/PetaLinux/2023.2/
+
+<step 2-7>
+~$ source /tools/Xilinx/PetaLinux/2023.2/settings.sh
+
+<step 2-8>
+~$ vi ~/.bashrc
+source /tools/Xilinx/Vitis/2023.2/settings64.sh
+source /tools/Xilinx/PetaLinux/2023.2/settings.sh > /dev/null
+
+<step 2-9>
+~$ cd ~/Downloads
+~$ tar -xvzf downloads_2023.tgz -C /tools/Xilinx/PetaLinux
+~$ tar -xvzf sstate-cache_2023_zyboz720.tgz -C /tools/Xilinx/PetaLinux
+
+* chapter 2
+
+~$ sudo apt install vim tree ffmpeg ubuntu-restricted-extras python2-minimal
+
+* chapter 2 - section 2
+
+<step 1>
+~$ cd ~/work
+~$ git clone -b 2023.2 https://github.com/inipro/zyboz7_linux.git
+
+<step 2-1>
+~$ cd ~/work/zyboz7_linux/vivado/20
+~$ vivado -nolog -nojournal -source base.tcl
+
+<step 2-2>
+~$ cd ~/work/zyboz7_linux/plnx
+~$ petalinux-create -t project -s zyboz720_base.bsp
+
+<step 2-3>
+~$ vi zyboz720_base/project-spec/configs/config
+~$ petalinux-package --force --bsp --clean -o zyboz720_base.bsp -p zyboz720_base
+
+<step 2-4>
+~$ cd zyboz720_base/
+~$ petalinux-build
+~$ petalinux-package --wic --wks project-spec/meta-user/wic/petalinux-image-minimal.wks --bootfiles "BOOT.BIN boot.scr uImage system.dtb" --wic-extra-args "-c xz"
+
+<step 2-5>
+~$ mkdir ../output
+~$ cp images/linux/petalinux-sdimage.wic.xz ../output/
+~$ cd ..
+~$ rm -fr zyboz720_base
+
+<step 3-2>
+~$ minicom -D /dev/ttyUSB1
+
+<step 3-5>
+~$ cd ~/work/zyboz7_linux
+~$ ifconfig
+~$ sudo ./simple-dhcpd -i enp12s0 -a 192.168.100.1
+
+<step 3-6>
+~$ ssh petalinux@192.168.100.100
+
+<step 3-7>
+zyboz7:~$ sudo vi /etc/hosts
+192.168.100.1 myrepo
+
+* chapter 2 - section 3
+
+<step 1-1>
+~$ cd ~/work/zyboz7_linux/vivado/20
+~$ vivado -nolog -nojournal -source sensor.tcl
+
+<step 1-2>
+~$ cd ~/work/zyboz7_linux/plnx/
+~$ petalinux-create -t project -n zyboz720_sensor -s zyboz720_base.bsp
+~$ cd zyboz720_sensor/
+~$ mkdir -p project-spec/meta-user/recipes-firmware/sensor-fw/files
+~$ cp ../../vivado/20//sensor/sensor_wrapper.xsa project-spec/meta-user/recipes-firmware/sensor-fw/files/
+~$ cp ../meta-user/recipes-firmware/sensor-fw/files/pl-custom.dtsi project-spec/meta-user/recipes-firmware/sensor-fw/files/
+~$ cp ../meta-user/recipes-firmware/sensor-fw/sensor-fw.bb project-spec/meta-user/recipes-firmware/sensor-fw/
+~$ tree project-spec/meta-user/recipes-firmware/sensor-fw/
+~$ mkdir project-spec/meta-user/recipes-modules
+~$ cp -r ../meta-user/recipes-modules/pmodals/ project-spec/meta-user/recipes-modules/
+~$ view project-spec/meta-user/recipes-firmware/sensor-fw/sensor-fw.bb
+~$ view project-spec/meta-user/recipes-firmware/sensor-fw/files/pl-custom.dtsi
+~$ petalinux-build -c sensor-fw -x configure
+~$ view build/tmp/work/zynq_generic_7z020-xilinx-linux-gnueabi/sensor-fw/1.0-r0/build/sensor-fw/ps7_cortexa9_0/device_tree_domain/bsp/pl.dtsi
+
+<step 2-1>
+~$ petalinux-build -c sensor-fw
+~$ petalinux-build -c package-index
+
+<step 2-2>
+~$ cd ~/work/zyboz7_linux/plnx/zyboz720_sensor/build/tmp/deploy/rpm/
+~$ python3 -m http.server 5678
+
+<step 2-3>
+zyboz7:~$ sudo dnf -y --refresh install sensor-fw
+zyboz7:~$ sudo fpgautil -b /lib/firmware/xilinx/sensor-fw/sensor-fw.bit.bin -o /lib/firmware/xilinx/sensor-fw/sensor-fw.dtbo
+
+<step 2-4>
+zyboz7:~$ lsmod
+
+<step 2-5>
+zyboz7:~$ cat /sys/class/spi_master/spi1/spi1.0/adc
+
+<step 3-1>
+~$ vi project-spec/meta-user/recipes-apps/fw-autoload/fw-autoload.bb
+RDEPENDS:${PN} += " \
+        fpga-manager-script \
+        sensor-fw \
+        "
+~$ vi project-spec/meta-user/recipes-apps/fw-autoload/files/fw-autoload.sh 
+base_path="/lib/firmware/xilinx/sensor-fw"
+bit_file="sensor-fw.bit.bin"
+dtb_file="sensor-fw.dtbo"
+
+<step 3-2>
+~$ petalinux-build -c fw-autoload
+~$ petalinux-build -c package-index
+zyboz7:~$ sudo dnf -y --refresh remove fw-autoload
+zyboz7:~$ sudo dnf -y --refresh install fw-autoload
+zyboz7:~$ sudo reboot
+
+<step 4-1>
+~$ petalinux-build
+~$ petalinux-package --wic --wks project-spec/meta-user/wic/petalinux-image-minimal.wks --bootfiles "BOOT.BIN boot.scr uImage system.dtb" --wic-extra-args "-c xz"
+
+<step 4-2>
+~$ mkdir ../output/sensor
+~$ cp images/linux/petalinux-sdimage.wic.xz ../output/sensor
+~$ cd ..
+~$ petalinux-package --force --bsp --clean -o zyboz720_sensor.bsp -p zyboz720_sensor
+~$ rm -fr zyboz720_sensor
+
+* chapter 2 - section 4
+
+<step 1-1>
+~$ cd ~/work/zyboz7_linux/vivado/20
+~$ vivado -nolog -nojournal -source vadd.tcl
+
+<step 1-2>
+~$ cd ~/work/zyboz7_linux/plnx/
+~$ petalinux-create -t project -n zyboz720_vadd -s zyboz720_base.bsp
+~$ cd zyboz720_vadd/
+~$ mkdir -p project-spec/meta-user/recipes-firmware/vadd-fw/files/
+~$ cp ../../vivado/20/vadd/vadd_wrapper.xsa project-spec/meta-user/recipes-firmware/vadd-fw/files/
+~$ cp ../meta-user/recipes-firmware/vadd-fw/files/pl-custom.dtsi project-spec/meta-user/recipes-firmware/vadd-fw/files/
+~$ cp ../meta-user/recipes-firmware/vadd-fw/vadd-fw.bb project-spec/meta-user/recipes-firmware/vadd-fw/
+~$ tree project-spec/meta-user/recipes-firmware/vadd-fw/
+~$ mkdir project-spec/meta-user/recipes-modules
+~$ cp -r ../meta-user/recipes-modules/mygem/ project-spec/meta-user/recipes-modules/
+~$ view project-spec/meta-user/recipes-firmware/vadd-fw/vadd-fw.bb
+~$ view project-spec/meta-user/recipes-firmware/vadd-fw/files/pl-custom.dtsi
+~$ petalinux-build -c vadd-fw -x configure
+~$ view build/tmp/work/zynq_generic_7z020-xilinx-linux-gnueabi/vadd-fw/1.0-r0/build/vadd-fw/ps7_cortexa9_0/device_tree_domain/bsp/pl.dtsi
+~$ view project-spec/configs/config
+zyboz7:~$ cat /proc/cmdline 
+
+<step 2-1>
+~$ petalinux-build -c vadd-fw
+~$ petalinux-build -c package-index
+
+<step 2-2>
+~$ cd ~/work/zyboz7_linux/plnx/zyboz720_vadd/build/tmp/deploy/rpm/
+~$ python3 -m http.server 5678
+
+<step 2-3>
+zyboz7:~$ sudo dnf -y --refresh install vadd-fw
+zyboz7:~$ sudo fpgautil -b /lib/firmware/xilinx/vadd-fw/vadd-fw.bit.bin -o /lib/firmware/xilinx/vadd-fw/vadd-fw.dtbo 
+
+<step 2-4>
+zyboz7:~$ lsmod
+
+<step 2-5>
+zyboz7:~$ ls -l /sys/class/uio/
+zyboz7:~$ ls /dev/uio0
+zyboz7:~$ ls -l /dev/dri/by-path/
+zyboz7:~$ cat /proc/interrupts 
+
+<step 3-1>
+~$ cp -r ../meta-user/recipes-apps/vadd-app/ project-spec/meta-user/recipes-apps/
+~$ petalinux-build -c vadd-app
+~$ petalinux-build -c package-index
+
+<step 3-2>
+zyboz7:~$ sudo dnf -y --refresh install vadd-app
+zyboz7:~$ sudo vadd-app
+zyboz7:~$ dmesg
+zyboz7:~$ cat /proc/interrupts 
+
+<step 4-1>
+~$ vi project-spec/meta-user/recipes-apps/fw-autoload/files/fw-autoload.sh 
+base_path="/lib/firmware/xilinx/vadd-fw"
+bit_file="vadd-fw.bit.bin"
+dtb_file="vadd-fw.dtbo"
+
+<step 4-2>
+~$ petalinux-build -c fw-autoload
+~$ petalinux-build -c package-index
+zyboz7:~$ sudo dnf -y --refresh remove fw-autoload
+zyboz7:~$ sudo dnf -y --refresh install fw-autoload
+zyboz7:~$ sudo reboot
+
+<step 5-1>
+~$ vi project-spec/meta-user/conf/user-rootfsconfig 
+CONFIG_vadd-app
+~$ petalinux-config -c rootfs
+
+<step 5-2>
+~$ petalinux-build
+~$ petalinux-package --wic --wks project-spec/meta-user/wic/petalinux-image-minimal.wks --bootfiles "BOOT.BIN boot.scr uImage system.dtb" --wic-extra-args "-c xz"
+
+<step 5-3>
+~$ mkdir ../output/vadd
+~$ cp images/linux/petalinux-sdimage.wic.xz ../output/vadd
+~$ cd ..
+~$ petalinux-package --force --bsp --clean -o zyboz720_vadd.bsp -p zyboz720_vadd
+~$ rm -fr zyboz720_vadd
+
+* chapter 2 - section 5
+
+<step 1>
+~$ cd ~/work/zyboz7_linux/vivado/20
+~$ vivado -nolog -nojournal -source pcam5c.tcl
+
+<step 2-1>
+~$ cd ~/work/zyboz7_linux/plnx/
+~$ petalinux-create -t project -n zyboz720_pcam5c -s zyboz720_base.bsp
+~$ cd zyboz720_pcam5c/
+~$ petalinux-build -c linux-xlnx -x configure
+~$ petalinux-devtool modify linux-xlnx
+
+<step 2-2>
+~$ cd ~/work/zyboz7_linux/plnx/zyboz720_pcam5c/components/yocto/workspace/sources/linux-xlnx/
+~$ git log --oneline -5
+
+<step 2-3>
+~$ vi drivers/media/i2c/ov5640.c
+        
+        if (sensor->current_mode->pixel_rate == OV5640_PIXEL_RATE_148M) sysclk = 120000000U * ov5640_code_to_bpp(sensor, sensor->fmt.code)/(2 *sensor->ep.bus.mipi_csi2.num_data_lanes);
+   
+~$ git diff
+
+<step 2-4>
+~$ petalinux-devtool menuconfig linux-xlnx
+
+<step 2-7>
+~$ petalinux-build -c linux-xlnx
+~$ ls images/linux/uImage
+
+<step 2-8>
+~$ cp images/linux/uImage /media/$USER/boot
+~$ sync
+
+<step 2-9>
+zyboz7:~$ zcat /proc/config.gz | grep -e ^CONFIG_I2C_XILINX -e ^CONFIG_VIDEO_OV5640 -e ^CONFIG_VIDEO_XILINX
+
+<step 3-1>
+~$ cd ~/work/zyboz7_linux/plnx/zyboz720_pcam5c
+~$ mkdir -p project-spec/meta-user/recipes-firmware/pcam5c-fw/files
+~$ cp ../../vivado/20/pcam5c/pcam5c_wrapper.xsa project-spec/meta-user/recipes-firmware/pcam5c-fw/files/
+~$ cp ../meta-user/recipes-firmware/pcam5c-fw/files/pl-custom.dtsi project-spec/meta-user/recipes-firmware/pcam5c-fw/files/
+~$ cp ../meta-user/recipes-firmware/pcam5c-fw/pcam5c-fw.bb project-spec/meta-user/recipes-firmware/pcam5c-fw/
+~$ tree project-spec/meta-user/recipes-firmware/pcam5c-fw/
+~$ view project-spec/meta-user/recipes-firmware/pcam5c-fw/pcam5c-fw.bb
+~$ view project-spec/meta-user/recipes-firmware/pcam5c-fw/files/pl-custom.dtsi 
+~$ petalinux-build -c pcam5c-fw -x configure
+~$ view build/tmp/work/zynq_generic_7z020-xilinx-linux-gnueabi/pcam5c-fw/1.0-r0/build/pcam5c-fw/ps7_cortexa9_0/device_tree_domain/bsp/pl.dtsi
+
+<step 3-2>
+~$ petalinux-build -c pcam5c-fw
+~$ petalinux-build -c package-index
+
+<step 3-3>
+~$ cd ~/work/zyboz7_linux/plnx/zyboz720_pcam5c/build/tmp/deploy/rpm/
+~$ python3 -m http.server 5678
+
+<step 3-4>
+zyboz7:~$ sudo dnf -y --refresh install pcam5c-fw
+zyboz7:~$ sudo fpgautil -b /lib/firmware/xilinx/pcam5c-fw/pcam5c-fw.bit.bin -o /lib/firmware/xilinx/pcam5c-fw/pcam5c-fw.dtbo
+
+<step 3-5>
+zyboz7:~$ ls /dev/media0
+zyboz7:~$ media-ctl -d /dev/media0 -p
+
+<step 3-6>
+zyboz7:~$ media-ctl -d /dev/media0 -V '"ov5640 0-003c":0 [fmt:UYVY/1920x1080 field:none]'
+zyboz7:~$ media-ctl -d /dev/media0 -V '"40030000.v_proc_ss":0 [fmt:UYVY/1920x1080 field:none]'
+zyboz7:~$ media-ctl -d /dev/media0 -p
+
+<step 3-7>
+zyboz7:~$ sudo gst-launch-1.0 -v v4l2src device=/dev/video0 num-buffers=15 ! capsfilter caps='video/x-raw,width=1920,height=1080,format=RGB' ! fpsdisplaysink video-sink='filesink location=/run/out.rgb'
+zyboz7:~$ du -b /run/out.rgb 
+
+<step 3-8>
+~$ cd ~/Downloads
+~$ scp petalinux@192.168.100.100:/run/out.rgb .
+~$ ffmpeg -f rawvideo -vcodec rawvideo -s 1920x1080 -r 15 -pix_fmt rgb24 -i out.rgb -c:v libx264 -preset ultrafast -qp 0 out.mp4
+
+<step 4-1>
+~$ vi project-spec/meta-user/recipes-apps/fw-autoload/fw-autoload.bb
+RDEPENDS:${PN} += " \
+        fpga-manager-script \
+        pcam5c-fw \
+        "
+~$ vi project-spec/meta-user/recipes-apps/fw-autoload/files/fw-autoload.sh 
+base_path="/lib/firmware/xilinx/pcam5c-fw"
+bit_file="pcam5c-fw.bit.bin"
+dtb_file="pcam5c-fw.dtbo"
+
+<step 4-2>
+~$ petalinux-build -c fw-autoload
+~$ petalinux-build -c package-index
+zyboz7:~$ sudo dnf -y --refresh remove fw-autoload
+zyboz7:~$ sudo dnf -y --refresh install fw-autoload
+zyboz7:~$ sudo reboot
+
+<step 5-1>
+~$ git add drivers/media/i2c/ov5640.c
+~$ git commit -s -m "Modify mipi clock reg"
+
+<step 5-2>
+~$ cat oe-local-files/devtool-fragment.cfg >> oe-local-files/bsp.cfg
+~$ rm oe-local-files/devtool-fragment.cfg
+~$ cp .config.new .config.baseline
+
+<step 5-3>
+~$ tree project-spec/meta-user/recipes-kernel/linux/
+~$ view project-spec/meta-user/recipes-kernel/linux/linux-xlnx_%.bbappend
+~$ view project-spec/meta-user/recipes-kernel/linux/linux-xlnx/bsp.cfg
+
+<step 5-4>
+~$ exit
+
+<step 5-5>
+~$ petalinux-devtool update-recipe -n -a ../project-spec/meta-user linux-xlnx
+~$ tree project-spec/meta-user/recipes-kernel/linux/
+~$ view project-spec/meta-user/recipes-kernel/linux/linux-xlnx_%.bbappend
+~$ view project-spec/meta-user/recipes-kernel/linux/linux-xlnx_2023.2.bbappend
+~$ view project-spec/meta-user/recipes-kernel/linux/linux-xlnx/bsp.cfg 
+~$ view project-spec/meta-user/recipes-kernel/linux/linux-xlnx/0001-Modify-mipi-clock-reg.patch
+
+<step 5-6>
+~$ petalinux-devtool reset -r linux-xlnx
+
+<step 5-7>
+~$ petalinux-build
+~$ petalinux-package --wic --wks project-spec/meta-user/wic/petalinux-image-minimal.wks --bootfiles "BOOT.BIN boot.scr uImage system.dtb" --wic-extra-args "-c xz"
+
+<step 5-8>
+~$ mkdir ../output/pcam5c
+~$ cp images/linux/petalinux-sdimage.wic.xz ../output/pcam5c
+~$ cd ..
+~$ petalinux-package --force --bsp --clean -o zyboz720_pcam5c.bsp -p zyboz720_pcam5c
+~$ rm -fr zyboz720_pcam5c
+
+* chapter 2 - section 6
+
+<step 1>
+~$ cd ~/work/zyboz7_linux/vivado/20
+~$ vivado -nolog -nojournal -source hdmitx.tcl
+
+<step 2-1>
+~$ cd ~/work/zyboz7_linux/plnx/
+~$ petalinux-create -t project -n zyboz720_hdmitx -s zyboz720_base.bsp
+~$ cd zyboz720_hdmitx/
+~$ petalinux-build -c linux-xlnx -x configure
+~$ petalinux-devtool modify linux-xlnx
+~$ petalinux-devtool menuconfig linux-xlnx
+
+<step 2-4>
+~$ petalinux-build -c linux-xlnx
+~$ ls images/linux/uImage
+
+<step 2-5>
+~$ cp images/linux/uImage /media/$USER/boot
+~$ sync
+
+<step 2-6>
+zyboz7:~$ zcat /proc/config.gz | grep -e ^CONFIG_DRM_XLNX -e ^CONFIG_I2C_XILINX
+
+<step 3-1>
+~$ cd ~/work/zyboz7_linux/plnx/zyboz720_hdmitx
+~$ mkdir -p project-spec/meta-user/recipes-firmware/hdmitx-fw/files
+~$ cp ../../vivado/20/hdmitx/hdmitx_wrapper.xsa project-spec/meta-user/recipes-firmware/hdmitx-fw/files/
+~$ cp ../meta-user/recipes-firmware/hdmitx-fw/files/pl-custom.dtsi project-spec/meta-user/recipes-firmware/hdmitx-fw/files/
+~$ cp ../meta-user/recipes-firmware/hdmitx-fw/hdmitx-fw.bb project-spec/meta-user/recipes-firmware/hdmitx-fw/
+~$ tree project-spec/meta-user/recipes-firmware/hdmitx-fw/
+~$ mkdir project-spec/meta-user/recipes-modules
+~$ cp -r ../meta-user/recipes-modules/clk-dglnt-dynclk/ project-spec/meta-user/recipes-modules/
+~$ cp -r ../meta-user/recipes-modules/digilent-hdmi/ project-spec/meta-user/recipes-modules/
+~$ view project-spec/meta-user/recipes-firmware/hdmitx-fw/hdmitx-fw.bb
+~$ view project-spec/meta-user/recipes-firmware/hdmitx-fw/files/pl-custom.dtsi 
+~$ petalinux-build -c hdmitx-fw -x configure
+~$ view build/tmp/work/zynq_generic_7z020-xilinx-linux-gnueabi/hdmitx-fw/1.0-r0/build/hdmitx-fw/ps7_cortexa9_0/device_tree_domain/bsp/pl.dtsi
+
+<step 3-2>
+~$ petalinux-build -c hdmitx-fw
+~$ petalinux-build -c package-index
+
+<step 3-3>
+~$ cd ~/work/zyboz7_linux/plnx/zyboz720_hdmitx/build/tmp/deploy/rpm/
+~$ python3 -m http.server 5678
+
+<step 3-4>
+zyboz7:~$ sudo dnf -y --refresh install hdmitx-fw
+zyboz7:~$ sudo fpgautil -b /lib/firmware/xilinx/hdmitx-fw/hdmitx-fw.bit.bin -o /lib/firmware/xilinx/hdmitx-fw/hdmitx-fw.dtbo
+
+<step 3-5>
+zyboz7:~$ ls -l /dev/dri/by-path/
+zyboz7:~$ modetest -D axi:xlnx_pl_disp
+
+<step 3-6>
+zyboz7:~$ modetest -D axi:xlnx_pl_disp -s 38:1920x1080@BG24
+
+<step 4-1>
+~$ vi project-spec/meta-user/recipes-apps/fw-autoload/fw-autoload.bb
+RDEPENDS:${PN} += " \
+        fpga-manager-script \
+        hdmitx-fw \
+        "
+~$ vi project-spec/meta-user/recipes-apps/fw-autoload/files/fw-autoload.sh 
+base_path="/lib/firmware/xilinx/hdmitx-fw"
+bit_file="hdmitx-fw.bit.bin"
+dtb_file="hdmitx-fw.dtbo"
+
+<step 4-2>
+~$ petalinux-build -c fw-autoload
+~$ petalinux-build -c package-index
+zyboz7:~$ sudo dnf -y --refresh remove fw-autoload
+zyboz7:~$ sudo dnf -y --refresh install fw-autoload
+zyboz7:~$ sudo reboot
+
+<step 5-1>
+~$ cd ~/work/zyboz7_linux/plnx/zyboz720_hdmitx/components/yocto/workspace/sources/linux-xlnx/
+~$ cat oe-local-files/devtool-fragment.cfg >> oe-local-files/bsp.cfg
+~$ rm oe-local-files/devtool-fragment.cfg
+~$ cp .config.new .config.baseline
+
+<step 5-2>
+~$ tree project-spec/meta-user/recipes-kernel/linux/
+~$ view project-spec/meta-user/recipes-kernel/linux/linux-xlnx_%.bbappend
+~$ view project-spec/meta-user/recipes-kernel/linux/linux-xlnx/bsp.cfg
+
+<step 5-3>
+~$ exit
+
+<step 5-4>
+~$ petalinux-devtool update-recipe -n -a ../project-spec/meta-user linux-xlnx
+~$ tree project-spec/meta-user/recipes-kernel/linux/
+~$ view project-spec/meta-user/recipes-kernel/linux/linux-xlnx_%.bbappend
+~$ view project-spec/meta-user/recipes-kernel/linux/linux-xlnx_2023.2.bbappend
+~$ rm project-spec/meta-user/recipes-kernel/linux/linux-xlnx_2023.2.bbappend
+~$ view project-spec/meta-user/recipes-kernel/linux/linux-xlnx/bsp.cfg 
+
+<step 5-5>
+$ petalinux-devtool reset -r linux-xlnx
+
+<step 5-6>
+~$ petalinux-build
+~$ petalinux-package --wic --wks project-spec/meta-user/wic/petalinux-image-minimal.wks --bootfiles "BOOT.BIN boot.scr uImage system.dtb" --wic-extra-args "-c xz"
+
+<step 5-7>
+~$ mkdir  ../output/hdmitx
+~$ cp images/linux/petalinux-sdimage.wic.xz ../output/hdmitx
+~$ cd ..
+~$ petalinux-package --force --bsp --clean -o zyboz720_hdmitx.bsp -p zyboz720_hdmitx
+~$ rm -fr zyboz720_hdmitx
+
+* chapter 2 - section 7
+
+<step 1>
+~$ cd ~/work/zyboz7_linux/vivado/20
+~$ vivado -nolog -nojournal -source pcam5c_hdmitx.tcl
+
+<step 2-1>
+~$ cd ~/work/zyboz7_linux/plnx/
+~$ petalinux-create -t project -n zyboz720_pcam5c_hdmitx -s zyboz720_base.bsp
+~$ cd zyboz720_pcam5c_hdmitx/
+~$ petalinux-build -c linux-xlnx -x configure
+~$ petalinux-devtool modify linux-xlnx
+
+<step 2-2>
+~$ cd ~/work/zyboz7_linux/plnx/zyboz720_pcam5c_hdmitx/components/yocto/workspace/sources/linux-xlnx/
+~$ vi drivers/media/i2c/ov5640.c
+        
+        if (sensor->current_mode->pixel_rate == OV5640_PIXEL_RATE_148M) sysclk = 120000000U * ov5640_code_to_bpp(sensor, sensor->fmt.code)/(2 *sensor->ep.bus.mipi_csi2.num_data_lanes);
+        
+~$ git diff
+
+<step 2-3>
+~$ petalinux-devtool menuconfig linux-xlnx
+
+<step 2-6>
+~$ petalinux-build -c linux-xlnx
+~$ ls images/linux/uImage
+
+<step 2-7>
+~$ cp images/linux/uImage /media/$USER/boot
+~$ sync
+
+<step 2-8>
+zyboz7:~$ zcat /proc/config.gz | grep -e ^CONFIG_I2C_XILINX -e ^CONFIG_VIDEO_OV5640 -e ^CONFIG_VIDEO_XILINX -e ^CONFIG_DRM_XLNX
+
+<step 3-1>
+~$ cd ~/work/zyboz7_linux/plnx/zyboz720_pcam5c_hdmitx
+~$ mkdir -p project-spec/meta-user/recipes-firmware/pcam5c-hdmitx-fw/files
+~$ cp ../../vivado/20/pcam5c_hdmitx/pcam5c_hdmitx_wrapper.xsa project-spec/meta-user/recipes-firmware/pcam5c-hdmitx-fw/files/
+~$ cp ../meta-user/recipes-firmware/pcam5c-hdmitx-fw/files/pl-custom.dtsi project-spec/meta-user/recipes-firmware/pcam5c-hdmitx-fw/files/
+~$ cp ../meta-user/recipes-firmware/pcam5c-hdmitx-fw/pcam5c-hdmitx-fw.bb project-spec/meta-user/recipes-firmware/pcam5c-hdmitx-fw/
+~$ tree project-spec/meta-user/recipes-firmware/pcam5c-hdmitx-fw/
+~$ mkdir project-spec/meta-user/recipes-modules
+~$ cp -r ../meta-user/recipes-modules/clk-dglnt-dynclk/ project-spec/meta-user/recipes-modules/
+~$ cp -r ../meta-user/recipes-modules/digilent-hdmi/ project-spec/meta-user/recipes-modules/
+~$ view project-spec/meta-user/recipes-firmware/pcam5c-hdmitx-fw/pcam5c-hdmitx-fw.bb
+~$ view project-spec/meta-user/recipes-firmware/pcam5c-hdmitx-fw/files/pl-custom.dtsi 
+~$ petalinux-build -c pcam5c-hdmitx-fw -x configure
+~$ view build/tmp/work/zynq_generic_7z020-xilinx-linux-gnueabi/pcam5c-hdmitx-fw/1.0-r0/build/pcam5c-hdmitx-fw/ps7_cortexa9_0/device_tree_domain/bsp/pl.dtsi
+
+<step 3-2>
+~$ petalinux-build -c pcam5c-hdmitx-fw
+~$ petalinux-build -c package-index
+
+<step 3-3>
+~$ cd ~/work/zyboz7_linux/plnx/zyboz720_pcam5c_hdmitx/build/tmp/deploy/rpm/
+~$ python3 -m http.server 5678
+
+<step 3-4>
+zyboz7:~$ sudo dnf -y --refresh install pcam5c-hdmitx-fw
+zyboz7:~$ sudo fpgautil -b /lib/firmware/xilinx/pcam5c-hdmitx-fw/pcam5c-hdmitx-fw.bit.bin -o /lib/firmware/xilinx/pcam5c-hdmitx-fw/pcam5c-hdmitx-fw.dtbo
+
+<step 3-5>
+zyboz7:~$ ls /dev/media0
+zyboz7:~$ media-ctl -d /dev/media0 -p
+
+<step 3-6>
+zyboz7:~$ media-ctl -d /dev/media0 -V '"ov5640 0-003c":0 [fmt:UYVY/1920x1080 field:none]'
+zyboz7:~$ media-ctl -d /dev/media0 -V '"40030000.v_proc_ss":0 [fmt:UYVY/1920x1080 field:none]'
+zyboz7:~$ media-ctl -d /dev/media0 -p
+
+<step 3-7>
+zyboz7:~$ sudo gst-launch-1.0 -v v4l2src device=/dev/video0 num-buffers=15 ! capsfilter caps='video/x-raw,width=1920,height=1080,format=RGB' ! fpsdisplaysink video-sink='filesink location=/run/out.rgb'
+zyboz7:~$ du -b /run/out.rgb
+
+<step 3-8>
+~$ cd ~/Downloads
+~$ scp petalinux@192.168.100.100:/run/out.rgb .
+~$ ffmpeg -f rawvideo -vcodec rawvideo -s 1920x1080 -r 15 -pix_fmt rgb24 -i out.rgb -c:v libx264 -preset ultrafast -qp 0 out.mp4
+
+<step 3-9>
+zyboz7:~$ ls -l /dev/dri/by-path/
+zyboz7:~$ modetest -D axi:xlnx_pl_disp
+
+<step 3-10>
+zyboz7:~$ modetest -D axi:xlnx_pl_disp -s 38:1920x1080@BG24
+
+<step 4-1>
+~$ cp -r ../meta-user/recipes-apps/pcam5c-to-hdmitx project-spec/meta-user/recipes-apps/
+~$ petalinux-build -c pcam5c-to-hdmitx
+~$ petalinux-build -c package-index
+
+<step 4-2>
+zyboz7:~$ sudo dnf -y --refresh install pcam5c-to-hdmitx
+zyboz7:~$ pcam5c-to-hdmitx 
+
+<step 5-1>
+~$ vi project-spec/meta-user/recipes-apps/fw-autoload/files/fw-autoload.sh
+base_path="/lib/firmware/xilinx/pcam5c-hdmitx-fw"
+bit_file="pcam5c-hdmitx-fw.bit.bin"
+dtb_file="pcam5c-hdmitx-fw.dtbo"
+
+<step 5-2>
+~$ cp -r ../meta-user/recipes-apps/autostart project-spec/meta-user/recipes-apps/
+
+<step 5-3>
+~$ petalinux-build -c fw-autoload
+~$ petalinux-build -c autostart
+~$ petalinux-build -c package-index
+zyboz7:~$ sudo dnf -y --refresh remove fw-autoload
+zyboz7:~$ sudo dnf -y --refresh install fw-autoload
+zyboz7:~$ sudo dnf -y --refresh install autostart
+zyboz7:~$ sudo reboot
+
+<step 6-1>
+~$ git add drivers/media/i2c/ov5640.c
+~$ git commit -s -m "Modify mipi clock reg"
+
+<step 6-2>
+~$ cat oe-local-files/devtool-fragment.cfg >> oe-local-files/bsp.cfg
+~$ rm oe-local-files/devtool-fragment.cfg
+~$ cp .config.new .config.baseline
+
+<step 6-3>
+~$ tree project-spec/meta-user/recipes-kernel/linux/
+~$ view project-spec/meta-user/recipes-kernel/linux/linux-xlnx_%.bbappend
+~$ view project-spec/meta-user/recipes-kernel/linux/linux-xlnx/bsp.cfg
+
+<step 6-4>
+~$ exit
+
+<step 6-5>
+~$ petalinux-devtool update-recipe -n -a ../project-spec/meta-user linux-xlnx
+~$ tree project-spec/meta-user/recipes-kernel/linux/
+~$ view project-spec/meta-user/recipes-kernel/linux/linux-xlnx_%.bbappend
+~$ view project-spec/meta-user/recipes-kernel/linux/linux-xlnx_2023.2.bbappend
+~$ view project-spec/meta-user/recipes-kernel/linux/linux-xlnx/bsp.cfg 
+~$ view project-spec/meta-user/recipes-kernel/linux/linux-xlnx/0001-Modify-mipi-clock-reg.patch
+
+<step 6-6>
+~$ petalinux-devtool reset -r linux-xlnx
+
+<step 6-7>
+~$ vi project-spec/meta-user/conf/user-rootfsconfig
+CONFIG_autostart
+~$ petalinux-config -c rootfs
+
+<step 6-8>
+~$ petalinux-build
+~$ petalinux-package --wic --wks project-spec/meta-user/wic/petalinux-image-minimal.wks --bootfiles "BOOT.BIN boot.scr uImage system.dtb" --wic-extra-args "-c xz"
+
+<step 6-9>
+~$ mkdir  ../output/pcam5c_hdmitx
+~$ cp images/linux/petalinux-sdimage.wic.xz ../output/pcam5c_hdmitx
+~$ cd ..
+~$ petalinux-package --force --bsp --clean -o zyboz720_pcam5c_hdmitx.bsp -p zyboz720_pcam5c_hdmitx
+~$ rm -fr zyboz720_pcam5c_hdmitx

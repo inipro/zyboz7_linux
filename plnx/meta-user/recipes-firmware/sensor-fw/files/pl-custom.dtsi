@@ -1,0 +1,9 @@
+&axi_quad_spi_0{
+   pmodals@0 {
+       compatible = "inipro,pmodals";
+	   reg = <0>;
+	   spi-max-frequency = <50000000>;
+	   spi-cpha;
+	   spi-cpol;
+   };
+};

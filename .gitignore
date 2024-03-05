@@ -1,0 +1,46 @@
+# Ignore Vivado journal and log files
+vivado*.jou
+vivado*.log
+vivado*.str
+
+# Ignore .Xil directory
+.Xil
+
+# Ignore vim files:
+*~
+*.swp
+*.swo
+
+vivado/*
+!vivado/ip
+
+!vivado/10
+vivado/10/*
+!vivado/10/base.tcl
+!vivado/10/base.xdc
+!vivado/10/sensor.tcl
+!vivado/10/sensor.xdc
+!vivado/10/vadd.tcl
+!vivado/10/vadd.xdc
+!vivado/10/hdmitx.tcl
+!vivado/10/hdmitx.xdc
+!vivado/10/pcam5c_hdmitx.tcl
+!vivado/10/pcam5c_hdmitx.xdc
+
+!vivado/20
+vivado/20/*
+!vivado/20/base.tcl
+!vivado/20/base.xdc
+!vivado/20/sensor.tcl
+!vivado/20/sensor.xdc
+!vivado/20/vadd.tcl
+!vivado/20/vadd.xdc
+!vivado/20/hdmitx.tcl
+!vivado/20/hdmitx.xdc
+!vivado/20/pcam5c_hdmitx.tcl
+!vivado/20/pcam5c_hdmitx.xdc
+
+plnx/*
+!plnx/meta-user
+!plnx/zyboz710_base.bsp
+!plnx/zyboz720_base.bsp

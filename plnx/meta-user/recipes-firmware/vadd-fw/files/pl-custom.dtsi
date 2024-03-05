@@ -1,0 +1,9 @@
+&amba {
+	mygem {
+		compatible = "inipro,mygem";
+	};
+};
+
+&vadd_0 {
+	compatible = "generic-uio";
+};
